@@ -10,7 +10,7 @@ func init() {
   rootCmd.AddCommand(addressCmd)
 }
 
-var versionCmd = &cobra.Command{
+var addressCmd = &cobra.Command{
   Use:   "address",
   Short: "Print the address associated with a secret key.",
   Long:  `Print the address associated with a secret key or keystore.`,
