@@ -12,7 +12,7 @@ var (
 	keystore     string
 	
 	rootCmd = &cobra.Command{
-		Use:   "gflr",
+		Use:   "go-flare",
 		Short: "Tools for the Flare network",
 		Long: `Flare leverages the Ethereum Virtual Machine without relying on either PoW or PoS.`,
 	}
