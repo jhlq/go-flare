@@ -12,7 +12,7 @@ var (
 	keystore     string
 	
 	rootCmd = &cobra.Command{
-		Use:   "go-flare",
+		Use:   "gflr",
 		Short: "Tools for the Flare network",
 		Long: `Flare leverages the Ethereum Virtual Machine without relying on either PoW or PoS.`,
 	}
@@ -25,10 +25,12 @@ func Execute() error {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&keystore, "keystore", "", "filename of keystore")
-	rootCmd.AddCommand(addressCmd)
+	//rootCmd.AddCommand(addressCmd)
 }
 
 func er(msg interface{}) {
-	fmt.Println("Error:", msg)
-	os.Exit(1)
+	if msg != nil {
+		fmt.Println("Error:", msg)
+		os.Exit(1)
+	}
 }
