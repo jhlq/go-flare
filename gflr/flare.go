@@ -4,10 +4,12 @@ import (
 	"crypto/ecdsa"
 	"errors"
 
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/jhlq/go-flare/erc20"
 
 	"context"
 	"fmt"
@@ -82,13 +84,7 @@ func Send(secret, address string, amount float64) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	/*s := fmt.Sprintf("%f", amount*math.Pow(10, 18))
-	s = strings.Split(s, ".")[0]
-	value, ok := new(big.Int).SetString(s, 10)*/
 	value := FloatTo18z(amount)
-	if !ok {
-		panic("Couldn't set big.Int string.")
-	}
 	gasLimit := uint64(210000) // in units
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
@@ -114,8 +110,54 @@ func Send(secret, address string, amount float64) (string, error) {
 		return "", err
 	}
 
-	//fmt.Printf("tx sent: %s, to address: %s\n", signedTx.Hash().Hex(), address)
-
 	client.Close()
 	return signedTx.Hash().Hex(), nil
+}
+func SendERC20(secret, tokenContract, address string, amount float64) (string, error) {
+	client, err := ethclient.Dial("http://coston.flare.network:9650/ext/bc/C/rpc")
+	if err != nil {
+		return "", err
+	}
+
+	tcaddress := common.HexToAddress(tokenContract)
+	instance, err := erc20.NewErc20(tcaddress, client)
+	if err != nil {
+		return "", err
+	}
+
+	privateKey, err := crypto.HexToECDSA(secret)
+	if err != nil {
+		return "", err
+	}
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		return "", errors.New("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+
+	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if err != nil {
+		return "", err
+	}
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	auth := bind.NewKeyedTransactor(privateKey)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // in units
+	auth.GasPrice = gasPrice
+
+	addre := common.HexToAddress(address)
+	a := FloatTo18z(amount)
+	tx, err := instance.Transfer(auth, addre, a)
+	if err != nil {
+		return "", err
+	}
+	client.Close()
+	return tx.Hash().Hex(), nil
 }
