@@ -19,7 +19,7 @@ var sendERC20Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		amount, err := strconv.ParseFloat(args[2], 10)
 		er(err)
-		secret, err := gflr.InputSecret()
+		secret, err := gflr.InputHidden("Enter private key: ")
 		er(err)
 		tx, err := gflr.SendERC20(secret, args[0], args[1], amount)
 		er(err)

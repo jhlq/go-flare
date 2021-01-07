@@ -20,8 +20,10 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func InputSecret() (string, error) {
-	fmt.Print("Enter secret: ")
+var host = "https://costone.flare.network/ext/bc/C/rpc" //old: "http://coston.flare.network:9650/ext/bc/C/rpc"
+
+func InputHidden(prompt string) (string, error) {
+	fmt.Print(prompt)
 	byteSecret, err := terminal.ReadPassword(int(syscall.Stdin))
 	fmt.Print("\n")
 	if err != nil {
@@ -62,8 +64,15 @@ func FloatTo18z(amount float64) *big.Int {
 	}
 	return b
 }
+func From18zToFloat(amount *big.Int) *big.Float {
+	b, _ := new(big.Int).SetString("1000000000000000000", 10)
+	f := new(big.Float).SetInt(amount)
+	g := new(big.Float).SetInt(b)
+	z := new(big.Float).Quo(f, g)
+	return z
+}
 func Send(secret, address string, amount float64) (string, error) {
-	client, err := ethclient.Dial("http://coston.flare.network:9650/ext/bc/C/rpc")
+	client, err := ethclient.Dial(host)
 	if err != nil {
 		return "", err
 	}
@@ -114,7 +123,7 @@ func Send(secret, address string, amount float64) (string, error) {
 	return signedTx.Hash().Hex(), nil
 }
 func SendERC20(secret, tokenContract, address string, amount float64) (string, error) {
-	client, err := ethclient.Dial("http://coston.flare.network:9650/ext/bc/C/rpc")
+	client, err := ethclient.Dial(host)
 	if err != nil {
 		return "", err
 	}
@@ -160,4 +169,34 @@ func SendERC20(secret, tokenContract, address string, amount float64) (string, e
 	}
 	client.Close()
 	return tx.Hash().Hex(), nil
+}
+
+func Balance(address string) (*big.Int, error) {
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return nil, err
+	}
+	account := common.HexToAddress(address)
+	balance, err := client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		return nil, err
+	}
+	return balance, nil
+}
+func BalanceERC20(tokenContract, address string) (*big.Int, error) {
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return nil, err
+	}
+	tcaddress := common.HexToAddress(tokenContract)
+	instance, err := erc20.NewErc20(tcaddress, client)
+	if err != nil {
+		return nil, err
+	}
+	account := common.HexToAddress(address)
+	bal, err := instance.BalanceOf(&bind.CallOpts{}, account)
+	if err != nil {
+		return nil, err
+	}
+	return bal, nil
 }
