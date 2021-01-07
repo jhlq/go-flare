@@ -3,6 +3,7 @@ package gflr
 import (
 	"crypto/ecdsa"
 	"errors"
+	"regexp"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -47,6 +48,10 @@ func ToAddress(secret string) (string, error) {
 	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 	return address, nil
 }
+func ValidateAddress(address string) bool {
+	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+	return re.MatchString(address)
+}
 func Float2Int(amount float64, decimals int) *big.Int {
 	s := fmt.Sprintf("%f", amount)
 	a := strings.Split(s, ".")
@@ -78,11 +83,14 @@ func Int2Float(amount *big.Int, decimals int) *big.Float {
 	return z
 }
 func Send(secret, address string, amount float64) (string, error) {
+	valid := ValidateAddress(address)
+	if !valid {
+		return "", errors.New("Invalid address")
+	}
 	client, err := ethclient.Dial(host)
 	if err != nil {
 		return "", err
 	}
-
 	privateKey, err := crypto.HexToECDSA(secret)
 	if err != nil {
 		return "", err
@@ -129,11 +137,14 @@ func Send(secret, address string, amount float64) (string, error) {
 	return signedTx.Hash().Hex(), nil
 }
 func SendERC20(secret, tokenContract, address string, amount float64) (string, error) {
+	valid := ValidateAddress(address)
+	if !valid {
+		return "", errors.New("Invalid address")
+	}
 	client, err := ethclient.Dial(host)
 	if err != nil {
 		return "", err
 	}
-
 	tcaddress := common.HexToAddress(tokenContract)
 	instance, err := erc20.NewErc20(tcaddress, client)
 	if err != nil {
@@ -182,6 +193,10 @@ func SendERC20(secret, tokenContract, address string, amount float64) (string, e
 }
 
 func Balance(address string) (*big.Int, error) {
+	valid := ValidateAddress(address)
+	if !valid {
+		return nil, errors.New("Invalid address")
+	}
 	client, err := ethclient.Dial(host)
 	if err != nil {
 		return nil, err
@@ -191,9 +206,14 @@ func Balance(address string) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
+	client.Close()
 	return balance, nil
 }
 func BalanceERC20(tokenContract, address string) (*big.Float, error) {
+	valid := ValidateAddress(address)
+	if !valid {
+		return nil, errors.New("Invalid address")
+	}
 	client, err := ethclient.Dial(host)
 	if err != nil {
 		return nil, err
@@ -213,5 +233,6 @@ func BalanceERC20(tokenContract, address string) (*big.Float, error) {
 		return nil, err
 	}
 	balance := Int2Float(bal, int(decimals))
+	client.Close()
 	return balance, nil
 }
