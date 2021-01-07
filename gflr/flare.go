@@ -47,11 +47,10 @@ func ToAddress(secret string) (string, error) {
 	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 	return address, nil
 }
-
-func FloatTo18z(amount float64) *big.Int {
+func Float2Int(amount float64, decimals int) *big.Int {
 	s := fmt.Sprintf("%f", amount)
 	a := strings.Split(s, ".")
-	for i := 0; i < 18; i++ {
+	for i := 0; i < decimals; i++ {
 		if len(a) > 1 && len(a[1]) > i {
 			a[0] += string(a[1][i])
 		} else {
@@ -64,8 +63,15 @@ func FloatTo18z(amount float64) *big.Int {
 	}
 	return b
 }
-func From18zToFloat(amount *big.Int) *big.Float {
-	b, _ := new(big.Int).SetString("1000000000000000000", 10)
+func Int2Float(amount *big.Int, decimals int) *big.Float {
+	s := "1"
+	for i := 0; i < decimals; i++ {
+		s += "0"
+	}
+	b, ok := new(big.Int).SetString(s, 10)
+	if !ok {
+		panic("Could not set big.Int string for value " + s)
+	}
 	f := new(big.Float).SetInt(amount)
 	g := new(big.Float).SetInt(b)
 	z := new(big.Float).Quo(f, g)
@@ -93,7 +99,7 @@ func Send(secret, address string, amount float64) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	value := FloatTo18z(amount)
+	value := Float2Int(amount, 18)
 	gasLimit := uint64(210000) // in units
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
@@ -162,7 +168,11 @@ func SendERC20(secret, tokenContract, address string, amount float64) (string, e
 	auth.GasPrice = gasPrice
 
 	addre := common.HexToAddress(address)
-	a := FloatTo18z(amount)
+	decimals, err := instance.Decimals(&bind.CallOpts{})
+	if err != nil {
+		return "", err
+	}
+	a := Float2Int(amount, int(decimals))
 	tx, err := instance.Transfer(auth, addre, a)
 	if err != nil {
 		return "", err
@@ -183,7 +193,7 @@ func Balance(address string) (*big.Int, error) {
 	}
 	return balance, nil
 }
-func BalanceERC20(tokenContract, address string) (*big.Int, error) {
+func BalanceERC20(tokenContract, address string) (*big.Float, error) {
 	client, err := ethclient.Dial(host)
 	if err != nil {
 		return nil, err
@@ -198,5 +208,10 @@ func BalanceERC20(tokenContract, address string) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
-	return bal, nil
+	decimals, err := instance.Decimals(&bind.CallOpts{})
+	if err != nil {
+		return nil, err
+	}
+	balance := Int2Float(bal, int(decimals))
+	return balance, nil
 }

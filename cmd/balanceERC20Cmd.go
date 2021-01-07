@@ -18,6 +18,6 @@ var balanceERC20Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		amount, err := gflr.BalanceERC20(args[0], args[1])
 		er(err)
-		fmt.Println("Balance: ", gflr.From18zToFloat(amount))
+		fmt.Println("Balance: ", amount)
 	},
 }
