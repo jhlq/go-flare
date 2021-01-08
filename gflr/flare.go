@@ -176,6 +176,10 @@ func SendERC20(secret, tokenContract, address string, amount float64) (string, e
 	if err != nil {
 		return "", err
 	}
+	tokenContract, err = Addresses(tokenContract)
+	if err != nil {
+		return "", err
+	}
 	valid := ValidateAddress(address)
 	if !valid {
 		return "", errors.New("Invalid address")
@@ -254,6 +258,10 @@ func Balance(address string) (*big.Int, error) {
 }
 func BalanceERC20(tokenContract, address string) (*big.Float, error) {
 	address, err := Addresses(address)
+	if err != nil {
+		return nil, err
+	}
+	tokenContract, err = Addresses(tokenContract)
 	if err != nil {
 		return nil, err
 	}
