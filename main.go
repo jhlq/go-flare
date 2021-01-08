@@ -20,6 +20,7 @@ func main() {
 				fmt.Println("Could not create config directory: " + err.Error())
 			} else {
 				file, err := os.Create(homeDirectory + "/go-flare-config/addresses.txt")
+				defer file.Close()
 				if err != nil {
 					fmt.Println("Could not create config file: " + err.Error())
 				} else {
@@ -31,7 +32,6 @@ func main() {
 					if err != nil {
 						fmt.Println("Could not create config file: " + err.Error())
 					}
-					file.Close()
 				}
 			}
 		}
