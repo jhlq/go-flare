@@ -16,7 +16,7 @@ var addressCmd = &cobra.Command{
 	Short: "Print the address associated with a secret key.",
 	Long:  `Print the address associated with a secret key or keystore.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		secret, err := gflr.InputHidden("Enter private key: ")
+		secret, err := gflr.InputHidden("Enter private key (without 0x): ")
 		er(err)
 		address, err := gflr.ToAddress(secret)
 		er(err)

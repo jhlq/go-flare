@@ -19,7 +19,7 @@ var sendCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		amount, err := strconv.ParseFloat(args[1], 10)
 		er(err)
-		secret, err := gflr.InputHidden("Enter private key: ")
+		secret, err := gflr.InputHidden("Enter private key (without 0x): ")
 		er(err)
 		tx, err := gflr.Send(secret, args[0], amount)
 		er(err)
