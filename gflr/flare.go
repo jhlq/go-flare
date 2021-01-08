@@ -2,7 +2,10 @@ package gflr
 
 import (
 	"crypto/ecdsa"
+	"encoding/csv"
 	"errors"
+	"os"
+	"os/user"
 	"regexp"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -48,6 +51,34 @@ func ToAddress(secret string) (string, error) {
 	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 	return address, nil
 }
+func Addresses(tag string) (string, error) {
+	if tag[0] != "@"[0] {
+		return tag, nil
+	}
+	user, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	homeDirectory := user.HomeDir
+	f, err := os.Open(homeDirectory + "/go-flare-config/addresses.csv")
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	r := csv.NewReader(f)
+	records, err := r.ReadAll()
+	if err != nil {
+		return "", err
+	}
+	address := ""
+	for i := 0; i < len(records); i++ {
+		if records[i][0] == tag {
+			address = records[i][1]
+			break
+		}
+	}
+	return address, nil
+}
 func ValidateAddress(address string) bool {
 	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 	return re.MatchString(address)
@@ -83,6 +114,10 @@ func Int2Float(amount *big.Int, decimals int) *big.Float {
 	return z
 }
 func Send(secret, address string, amount float64) (string, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return "", err
+	}
 	valid := ValidateAddress(address)
 	if !valid {
 		return "", errors.New("Invalid address")
@@ -137,6 +172,10 @@ func Send(secret, address string, amount float64) (string, error) {
 	return signedTx.Hash().Hex(), nil
 }
 func SendERC20(secret, tokenContract, address string, amount float64) (string, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return "", err
+	}
 	valid := ValidateAddress(address)
 	if !valid {
 		return "", errors.New("Invalid address")
@@ -193,6 +232,10 @@ func SendERC20(secret, tokenContract, address string, amount float64) (string, e
 }
 
 func Balance(address string) (*big.Int, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return nil, err
+	}
 	valid := ValidateAddress(address)
 	if !valid {
 		return nil, errors.New("Invalid address")
@@ -210,6 +253,10 @@ func Balance(address string) (*big.Int, error) {
 	return balance, nil
 }
 func BalanceERC20(tokenContract, address string) (*big.Float, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return nil, err
+	}
 	valid := ValidateAddress(address)
 	if !valid {
 		return nil, errors.New("Invalid address")

@@ -9,10 +9,17 @@ If you are on Linux running should be as easy as
 
 Else you may have to go build or go run main.go
 
+Edit the file addresses.csv in go-flare-config at your home dir to add addresses to your addressbook, note that names have to start with @. Then it is easy to query for example the balance of [the faucet](https://weilianqi.laerande.org/flarefaucet.php):
+```
+./go-flare balance @faucet
+```
+
+The addressbook is prefilled with the four primary tokens of Flare Finance.
+
 Available commands and their usage can be garnered from running go-flare and utilizing the help flag.
 
 FLR-20 tokens operate with the same interface as ERC-20 ones.
 
-This code has not been audited, use at your own risk.
-
 If you want to use the commands directly in Go code import github.com/jhlq/go-flare/gflr and then look at the various files in the cmd directory, it should be pretty self explanatory.
+
+This code has not been audited, use at your own risk.
