@@ -1,0 +1,4 @@
+./go-flare generate
+./go-flare balance @faucet
+./go-flare address -k tester.keystore -p 123456789
+./go-flare balanceERC20 @TST 0xdA45Fb4227c7Bf585A1406c167887c83356a992c

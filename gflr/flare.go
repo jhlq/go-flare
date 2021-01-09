@@ -4,12 +4,15 @@ import (
 	"crypto/ecdsa"
 	"encoding/csv"
 	"errors"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"regexp"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -37,7 +40,24 @@ func InputHidden(prompt string) (string, error) {
 	secret := string(byteSecret)
 	return strings.TrimSpace(secret), nil
 }
+func GenerateWallet() (string, string, error) {
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		return "", "", err
+	}
 
+	privateKeyBytes := crypto.FromECDSA(privateKey)
+	key := hexutil.Encode(privateKeyBytes)[2:] // fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		return "", "", errors.New("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+
+	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
+	return address, key, nil
+}
 func ToAddress(secret string) (string, error) {
 	key, err := crypto.HexToECDSA(secret)
 	if err != nil {
@@ -50,6 +70,28 @@ func ToAddress(secret string) (string, error) {
 	}
 	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 	return address, nil
+}
+func Unlock(ks, passphrase string) (string, error) {
+	d, err := GetDir()
+	if err != nil {
+		return "", err
+	}
+	jsonBytes, err := ioutil.ReadFile(d + "/" + ks)
+	if err != nil {
+		return "", err
+	}
+	key, err := keystore.DecryptKey(jsonBytes, passphrase)
+	privateKeyBytes := crypto.FromECDSA(key.PrivateKey)
+	secret := hexutil.Encode(privateKeyBytes)[2:]
+	return string(secret), nil
+}
+func GetDir() (string, error) {
+	user, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	homeDirectory := user.HomeDir
+	return homeDirectory + "/go-flare-config", nil
 }
 func Addresses(tag string) (string, error) {
 	if tag[0] != "@"[0] {
