@@ -1,4 +1,9 @@
 ./go-flare generate
 ./go-flare balance @faucet
 ./go-flare address -k tester.keystore -p 123456789
-./go-flare balanceERC20 @TST 0xdA45Fb4227c7Bf585A1406c167887c83356a992c
+./go-flare balance 0xD1e63F004b3aF42FbdFdeb70F3f37AEA3c836127
+./go-flare send 0xD1e63F004b3aF42FbdFdeb70F3f37AEA3c836127 0.0001 -k tester.keystore -p 123456789
+./go-flare balance 0xD1e63F004b3aF42FbdFdeb70F3f37AEA3c836127
+./go-flare balanceERC20 @TST 0xD1e63F004b3aF42FbdFdeb70F3f37AEA3c836127
+./go-flare sendERC20 @TST 0xD1e63F004b3aF42FbdFdeb70F3f37AEA3c836127 1000000000000000.111111111111111111111 -k tester.keystore -p 123456789
+./go-flare balanceERC20 @TST 0xD1e63F004b3aF42FbdFdeb70F3f37AEA3c836127

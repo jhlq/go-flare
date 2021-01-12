@@ -155,6 +155,22 @@ func Int2Float(amount *big.Int, decimals int) *big.Float {
 	z := new(big.Float).Quo(f, g)
 	return z
 }
+func Block(number int) (*types.Block, error) {
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return nil, err
+	}
+	var block *types.Block
+	if number < 0 {
+		block, err = client.BlockByNumber(context.Background(), nil)
+	} else {
+		block, err = client.BlockByNumber(context.Background(), big.NewInt(int64(number)))
+	}
+	if err != nil {
+		return nil, err
+	}
+	return block, nil
+}
 func Send(secret, address string, amount float64) (string, error) {
 	address, err := Addresses(address)
 	if err != nil {

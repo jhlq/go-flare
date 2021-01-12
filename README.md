@@ -1,6 +1,8 @@
 # go-flare
 Tools for the Flare network
 
+If you are on Windows/Mac check out the release.
+
 If you are on Linux running should be as easy as
 ```
 ./go-flare
