@@ -9,7 +9,7 @@ If you are on Linux running should be as easy as
 ./go-flare send --help
 ```
 
-Else you may have to go build or go run main.go
+Else you need gcc installed in order to go build or go run main.go
 
 Edit the file addresses.csv in go-flare-config at your home dir to add addresses to your addressbook, note that names have to start with @. Then it is easy to query for example the balance of [the faucet](https://weilianqi.laerande.org/flarefaucet.php):
 ```
