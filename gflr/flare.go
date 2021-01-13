@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -126,7 +127,7 @@ func ValidateAddress(address string) bool {
 	return re.MatchString(address)
 }
 func Float2Int(amount float64, decimals int) *big.Int {
-	s := fmt.Sprintf("%f", amount)
+	s := strconv.FormatFloat(amount, 'f', -1, 64)
 	a := strings.Split(s, ".")
 	for i := 0; i < decimals; i++ {
 		if len(a) > 1 && len(a[1]) > i {
