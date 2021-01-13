@@ -15,7 +15,7 @@ func init() {
 var blockCmd = &cobra.Command{
 	Use:   "block [number]",
 	Short: "Query information about a block.",
-	Long:  ``,
+	Long:  `Query information about a block. Omit number to fetch latest block.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
 		b := -1
@@ -29,6 +29,11 @@ var blockCmd = &cobra.Command{
 		fmt.Println("Difficulty: ", block.Difficulty().Uint64())
 		fmt.Println("Hash: ", block.Hash().Hex())
 		fmt.Println("Transactions: ", len(block.Transactions()))
+		if len(block.Transactions()) > 0 {
+			v, err := block.Transactions()[0].MarshalJSON()
+			er(err)
+			fmt.Println("Transaction 1 info:", string(v))
+		}
 		fmt.Println("Gas used: ", block.GasUsed())
 	},
 }
