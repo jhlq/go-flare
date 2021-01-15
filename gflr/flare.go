@@ -28,7 +28,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-var host = "https://costone.flare.network/ext/bc/C/rpc" //old: "http://coston.flare.network:9650/ext/bc/C/rpc"
+var host string
 
 func InputHidden(prompt string) (string, error) {
 	fmt.Print(prompt)
@@ -98,12 +98,11 @@ func Addresses(tag string) (string, error) {
 	if tag[0] != "@"[0] {
 		return tag, nil
 	}
-	user, err := user.Current()
+	dir, err := GetDir()
 	if err != nil {
 		return "", err
 	}
-	homeDirectory := user.HomeDir
-	f, err := os.Open(homeDirectory + "/go-flare-config/addresses.csv")
+	f, err := os.Open(dir + "/addresses.csv")
 	if err != nil {
 		return "", err
 	}
@@ -121,6 +120,26 @@ func Addresses(tag string) (string, error) {
 		}
 	}
 	return address, nil
+}
+func GetHost() (string, error) {
+	dir, err := GetDir()
+	if err != nil {
+		return "", err
+	}
+	h, err := ioutil.ReadFile(dir + "/host.txt")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(h)), nil
+}
+func SetHost(h string) error {
+	var err error
+	if h == "" {
+		host, err = GetHost()
+		return err
+	}
+	host = h
+	return nil
 }
 func ValidateAddress(address string) bool {
 	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")

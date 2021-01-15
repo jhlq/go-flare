@@ -24,7 +24,6 @@ func Execute() error {
 }
 
 func init() {
-	//rootCmd.PersistentFlags().StringVar(&keystore, "keystore", "", "filename of keystore (not implemented yet)")
 }
 
 func er(msg interface{}) {

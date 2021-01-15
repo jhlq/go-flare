@@ -21,6 +21,8 @@ The addressbook is prefilled with the four primary tokens of Flare Finance, so t
 ./go-flare sendERC20 @YFLR 0x213E269a503AD47Db5fa115905CbE3bE1aF490E3 10
 ```
 
+Edit the file hosts.txt to change which node you connect to.
+
 Available commands and their usage can be garnered from running go-flare and utilizing the help flag.
 
 FLR-20 tokens operate with the same interface as ERC-20 ones.
