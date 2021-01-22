@@ -27,6 +27,6 @@ Available commands and their usage can be garnered from running go-flare and uti
 
 FLR-20 tokens operate with the same interface as ERC-20 ones.
 
-If you want to use the commands directly in Go code import github.com/jhlq/go-flare/gflr and then look at the various files in the cmd directory, it should be pretty self explanatory.
+If you want to use the commands directly in Go code import github.com/jhlq/go-flare/gflr and then look at the various files in the cmd directory, it should be pretty self explanatory. Note that you have to set the host with gflr.SetHost("") (the "" tells gflr to use the host specified in the config folder)
 
 This code has not been audited, use at your own risk.
