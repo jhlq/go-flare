@@ -18,8 +18,11 @@ func init() {
 var sendERC20Cmd = &cobra.Command{
 	Use:   "sendERC20 [contractAddress] [account] [amount]",
 	Short: "Send ERC-20 tokens to an account.",
-	Long:  ``,
+	Long:  `Send ERC-20 tokens to an account. The ERC-20 interface is equivalent to "FLR-20". Do not send non-fungible tokens with this function.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 3 {
+			er("Not enough arguments.")
+		}
 		amount, err := strconv.ParseFloat(args[2], 10)
 		er(err)
 		if ks != "" {

@@ -20,6 +20,9 @@ var sendCmd = &cobra.Command{
 	Short: "Send FXRP to an account.",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 2 {
+			er("Not enough arguments.")
+		}
 		amount, err := strconv.ParseFloat(args[1], 10)
 		er(err)
 		if ks != "" {

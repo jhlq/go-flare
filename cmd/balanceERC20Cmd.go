@@ -16,6 +16,9 @@ var balanceERC20Cmd = &cobra.Command{
 	Short: "Check the balance of a ERC-20 token in an account.",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) < 2 {
+			er("Not enough arguments.")
+		}
 		amount, err := gflr.BalanceERC20(args[0], args[1])
 		er(err)
 		fmt.Println("Balance: ", amount)
