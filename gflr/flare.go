@@ -18,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/jhlq/go-flare/erc20"
+	"github.com/jhlq/go-flare/erc721"
 
 	"context"
 	"fmt"
@@ -371,4 +372,34 @@ func BalanceERC20(tokenContract, address string) (*big.Float, error) {
 	balance := Int2Float(bal, int(decimals))
 	client.Close()
 	return balance, nil
+}
+func BalanceERC721(tokenContract, address string) (*big.Int, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return nil, err
+	}
+	tokenContract, err = Addresses(tokenContract)
+	if err != nil {
+		return nil, err
+	}
+	valid := ValidateAddress(address)
+	if !valid {
+		return nil, errors.New("Invalid address")
+	}
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return nil, err
+	}
+	tcaddress := common.HexToAddress(tokenContract)
+	instance, err := erc721.NewErc721(tcaddress, client)
+	if err != nil {
+		return nil, err
+	}
+	account := common.HexToAddress(address)
+	bal, err := instance.BalanceOf(&bind.CallOpts{}, account)
+	if err != nil {
+		return nil, err
+	}
+	client.Close()
+	return bal, nil
 }
