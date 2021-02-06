@@ -82,6 +82,9 @@ func Unlock(ks, passphrase string) (string, error) {
 		return "", err
 	}
 	key, err := keystore.DecryptKey(jsonBytes, passphrase)
+	if err != nil {
+		return "", err
+	}
 	privateKeyBytes := crypto.FromECDSA(key.PrivateKey)
 	secret := hexutil.Encode(privateKeyBytes)[2:]
 	return string(secret), nil
