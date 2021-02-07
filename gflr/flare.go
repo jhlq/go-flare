@@ -317,7 +317,64 @@ func SendERC20(secret, tokenContract, address string, amount float64) (string, e
 	client.Close()
 	return tx.Hash().Hex(), nil
 }
+func SendERC721(secret, tokenContract, address string, id *big.Int) (string, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return "", err
+	}
+	tokenContract, err = Addresses(tokenContract)
+	if err != nil {
+		return "", err
+	}
+	valid := ValidateAddress(address)
+	if !valid {
+		return "", errors.New("Invalid address")
+	}
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return "", err
+	}
+	tcaddress := common.HexToAddress(tokenContract)
+	instance, err := erc721.NewErc721(tcaddress, client)
+	if err != nil {
+		return "", err
+	}
 
+	privateKey, err := crypto.HexToECDSA(secret)
+	if err != nil {
+		return "", err
+	}
+
+	publicKey := privateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		return "", errors.New("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+
+	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if err != nil {
+		return "", err
+	}
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	auth := bind.NewKeyedTransactor(privateKey)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = big.NewInt(0)     // in wei
+	auth.GasLimit = uint64(300000) // in units
+	auth.GasPrice = gasPrice
+
+	addre := common.HexToAddress(address)
+	tx, err := instance.SafeTransferFrom(auth, fromAddress, addre, id)
+	if err != nil {
+		return "", err
+	}
+	client.Close()
+	return tx.Hash().Hex(), nil
+}
 func Balance(address string) (*big.Int, error) {
 	address, err := Addresses(address)
 	if err != nil {
