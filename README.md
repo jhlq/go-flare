@@ -21,11 +21,11 @@ The addressbook is prefilled with the four primary tokens of Flare Finance, so t
 ./go-flare sendERC20 @YFLR 0x213E269a503AD47Db5fa115905CbE3bE1aF490E3 10
 ```
 
-Edit the file hosts.txt to change which node you connect to.
+Edit the file host.txt to change which node you connect to.
 
 Available commands and their usage can be garnered from running go-flare and utilizing the help flag.
 
-FLR-20 tokens operate with the same interface as ERC-20 ones.
+FLR-20 tokens operate with the same interface as ERC-20 ones. Always research what type of token you are handling before trying any operation on it.
 
 If you want to use the commands directly in Go code import github.com/jhlq/go-flare/gflr and then look at the various files in the cmd directory, it should be pretty self explanatory. Note that you have to set the host with gflr.SetHost("") (the "" tells gflr to use the host specified in the config folder)
 
