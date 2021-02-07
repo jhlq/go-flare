@@ -17,6 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/jhlq/go-flare/erc1155"
 	"github.com/jhlq/go-flare/erc20"
 	"github.com/jhlq/go-flare/erc721"
 
@@ -397,6 +398,36 @@ func BalanceERC721(tokenContract, address string) (*big.Int, error) {
 	}
 	account := common.HexToAddress(address)
 	bal, err := instance.BalanceOf(&bind.CallOpts{}, account)
+	if err != nil {
+		return nil, err
+	}
+	client.Close()
+	return bal, nil
+}
+func BalanceERC1155(tokenContract, address string, id *big.Int) (*big.Int, error) {
+	address, err := Addresses(address)
+	if err != nil {
+		return nil, err
+	}
+	tokenContract, err = Addresses(tokenContract)
+	if err != nil {
+		return nil, err
+	}
+	valid := ValidateAddress(address)
+	if !valid {
+		return nil, errors.New("Invalid address")
+	}
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return nil, err
+	}
+	tcaddress := common.HexToAddress(tokenContract)
+	instance, err := erc1155.NewErc1155(tcaddress, client)
+	if err != nil {
+		return nil, err
+	}
+	account := common.HexToAddress(address)
+	bal, err := instance.BalanceOf(&bind.CallOpts{}, account, id)
 	if err != nil {
 		return nil, err
 	}
