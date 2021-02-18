@@ -549,3 +549,25 @@ func BalanceERC1155(tokenContract, address string, id *big.Int) (*big.Int, error
 	client.Close()
 	return bal, nil
 }
+func OwnerERC721(tokenContract string, id *big.Int) (string, error) {
+	var err error
+	tokenContract, err = Addresses(tokenContract)
+	if err != nil {
+		return "", err
+	}
+	client, err := ethclient.Dial(host)
+	if err != nil {
+		return "", err
+	}
+	tcaddress := common.HexToAddress(tokenContract)
+	instance, err := erc721.NewErc721(tcaddress, client)
+	if err != nil {
+		return "", err
+	}
+	owner, err := instance.OwnerOf(&bind.CallOpts{}, id)
+	if err != nil {
+		return "", err
+	}
+	client.Close()
+	return owner.String(), nil
+}
