@@ -100,6 +100,9 @@ func GetDir() (string, error) {
 	return homeDirectory + "/go-flare-config", nil
 }
 func Addresses(tag string) (string, error) {
+	if len(tag) == 0 {
+		return tag, nil
+	}
 	if tag[0] != "@"[0] {
 		return tag, nil
 	}

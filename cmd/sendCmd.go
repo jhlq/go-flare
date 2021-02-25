@@ -17,7 +17,7 @@ func init() {
 
 var sendCmd = &cobra.Command{
 	Use:   "send [account] [amount]",
-	Short: "Send FXRP to an account.",
+	Short: "Send gas to an account.",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 2 {
