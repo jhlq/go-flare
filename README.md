@@ -16,7 +16,7 @@ Edit the file addresses.csv in go-flare-config at your home dir to add addresses
 ./go-flare balance @faucet
 ```
 
-The addressbook is prefilled with the four primary tokens of Flare Finance, so to send YFLR simply:
+The addressbook will be prefilled with the primary tokens of Flare Finance, so to send YFLR simply:
 ```
 ./go-flare sendERC20 @YFLR 0x213E269a503AD47Db5fa115905CbE3bE1aF490E3 10
 ```

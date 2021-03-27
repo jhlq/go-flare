@@ -31,6 +31,7 @@ import (
 )
 
 var host string
+var chainID *big.Int
 
 func InputHidden(prompt string) (string, error) {
 	fmt.Print(prompt)
@@ -141,6 +142,7 @@ func GetHost() (string, error) {
 	return strings.TrimSpace(string(h)), nil
 }
 func SetHost(h string) error {
+	chainID = big.NewInt(16)
 	var err error
 	if h == "" {
 		host, err = GetHost()
@@ -239,10 +241,13 @@ func Send(secret, address string, amount float64) (string, error) {
 	var data []byte
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, data)
 
-	chainID, err := client.NetworkID(context.Background())
-	if err != nil {
-		return "", err
-	}
+	/*
+		chainID, err := client.NetworkID(context.Background())
+		if err != nil {
+			return "", err
+		}
+	*/
+	//var chainID = big.NewInt(16)
 
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
